@@ -56,6 +56,7 @@ def save_speed_value(client, userdata, message):
 
 def vehicle_state(msg):
     if params.v_now > 0: #vehicle move
+        # INi ganti pake yg di IMU
         params.xnow = msg.x_m
         params.ynow = msg.y_m
         dist = np.sqrt((params.ynow-params.ybef)**2-(params.xnow-params.xbef)**2)
@@ -77,9 +78,12 @@ def vehicle_state(msg):
         # print(params.xnow, params.ynow, params.yaw, params.v_now)
     pub_msg.header.seq = pub_msg.header.seq + 1
     pub_msg.header.stamp = rospy.Time.now()
-    pub_msg.yaw_est = params.yaw
-    pub_msg.x_est = params.xnow
-    pub_msg.y_est = params.ynow
+    pub_msg.yaw_t_est = params.yaw_t
+    pub_msg.xt_est = params.xnow_t
+    pub_msg.yt_est = params.ynow_t
+    pub_msg.yaw_h_est = params.yaw_h
+    pub_msg.xh_est = params.xnow_h
+    pub_msg.yh_est = params.ynow_h
     pub_msg.v_est = params.v_now
     pub.publish(pub_msg)
 
@@ -98,7 +102,10 @@ pub_msg = State_Estimator()
 pub_msg.header.frame_id = 'vehicle_state'
 pub_msg.header.seq = 0
 pub_msg.header.stamp = rospy.Time.now()
-sub = rospy.Subscriber('/hedge_pos_a', hedge_pos_a, vehicle_state)
+
+#ini nanti ganti pake yg IMU
+sub = rospy.Subscriber('/hedge_pos_a', hedge_pos_a, vehicle_state) 
+
 pub = rospy.Publisher('/vehicle_state', State_Estimator, queue_size=1)
 rate = rospy.Rate(freq) # Hz
 
